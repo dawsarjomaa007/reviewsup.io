@@ -1,0 +1,80 @@
+services:
+  api:
+    build:
+      context: ..
+      dockerfile: docker/dev.Dockerfile
+      target: dev-api
+    container_name: reviewsup-api
+    ports:
+      - "5500:5500"
+    env_file:
+      - ../.env
+    environment:
+      - WATCHPACK_POLLING=true
+    volumes:
+      # Bind-mount the entire repo for hot-reload
+      - ..:/app
+
+      # Preserve node_modules at every level so host binaries
+      # (or absence of node_modules) don't overwrite the container's
+      - /app/node_modules
+      - /app/apps/api/node_modules
+      - /app/apps/web/node_modules
+      - /app/apps/docs/node_modules
+      - /app/packages/api/node_modules
+      - /app/packages/database/node_modules
+      - /app/packages/ui/node_modules
+      - /app/packages/embed-react/node_modules
+      - /app/packages/eslint-config/node_modules
+      - /app/packages/jest-config/node_modules
+      - /app/packages/tailwind-config/node_modules
+      - /app/packages/typescript-config/node_modules
+
+      # Named volume for the Prisma generated client
+      - prisma-generated:/app/packages/database/generated
+    networks:
+      - reviewsup-net
+      - dorar-network
+
+  web:
+    build:
+      context: ..
+      dockerfile: docker/dev.Dockerfile
+      target: dev-web
+    container_name: reviewsup-web
+    ports:
+      - "5510:5510"
+    env_file:
+      - ../.env
+    environment:
+      - WATCHPACK_POLLING=true
+    volumes:
+      - ..:/app
+
+      - /app/node_modules
+      - /app/apps/api/node_modules
+      - /app/apps/web/node_modules
+      - /app/apps/docs/node_modules
+      - /app/packages/api/node_modules
+      - /app/packages/database/node_modules
+      - /app/packages/ui/node_modules
+      - /app/packages/embed-react/node_modules
+      - /app/packages/eslint-config/node_modules
+      - /app/packages/jest-config/node_modules
+      - /app/packages/tailwind-config/node_modules
+      - /app/packages/typescript-config/node_modules
+
+      - prisma-generated:/app/packages/database/generated
+    depends_on:
+      - api
+    networks:
+      - reviewsup-net
+
+volumes:
+  prisma-generated:
+
+networks:
+  reviewsup-net:
+    driver: bridge
+  dorar-network:
+    external: true
