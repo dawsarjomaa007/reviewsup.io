@@ -52,7 +52,8 @@ COPY . .
 FROM base AS dev-api
 
 COPY docker/entrypoint-api.sh /entrypoint.sh
-RUN chmod +x /entrypoint.sh
+# Convert CRLF to LF (fixes "no such file or directory" on Windows hosts)
+RUN sed -i 's/\r$//' /entrypoint.sh && chmod +x /entrypoint.sh
 
 EXPOSE 5500
 
@@ -64,7 +65,8 @@ ENTRYPOINT ["/entrypoint.sh"]
 FROM base AS dev-web
 
 COPY docker/entrypoint-web.sh /entrypoint.sh
-RUN chmod +x /entrypoint.sh
+# Convert CRLF to LF (fixes "no such file or directory" on Windows hosts)
+RUN sed -i 's/\r$//' /entrypoint.sh && chmod +x /entrypoint.sh
 
 EXPOSE 5510
 

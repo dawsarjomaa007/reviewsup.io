@@ -168,3 +168,24 @@ Le conteneur web attend que l'API soit accessible sur le port 5500. Si l'API ech
 ```bash
 docker compose -f docker/docker-compose.dev.yml logs api
 ```
+
+### Erreur `exec /entrypoint.sh: no such file or directory` (Windows)
+
+Cette erreur survient lorsque les scripts shell ont des fins de ligne Windows (CRLF) au lieu de Unix (LF). Le fichier `.gitattributes` a la racine du projet devrait normaliser automatiquement les fins de ligne.
+
+Si vous rencontrez ce probleme, renormalisez les fichiers :
+```bash
+git add --renormalize .
+git checkout -- docker/*.sh
+```
+
+Ou convertissez manuellement avec `dos2unix` :
+```bash
+dos2unix docker/entrypoint-api.sh docker/entrypoint-web.sh
+```
+
+Si `dos2unix` n'est pas installe, vous pouvez utiliser PowerShell :
+```powershell
+(Get-Content docker/entrypoint-api.sh -Raw).Replace("`r`n", "`n") | Set-Content docker/entrypoint-api.sh -NoNewline
+(Get-Content docker/entrypoint-web.sh -Raw).Replace("`r`n", "`n") | Set-Content docker/entrypoint-web.sh -NoNewline
+```
